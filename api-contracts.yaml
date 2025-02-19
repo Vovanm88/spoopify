@@ -1,0 +1,347 @@
+ openapi: 3.0.0
+info:
+  title: Музыкальный рекомендательный сервис API
+  version: 1.0.0
+  description: API спецификация для музыкального рекомендательного сервиса
+
+servers:
+  - url: https://api.music-service.com/v1
+    description: Основной API сервер
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+
+    Song:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        artist:
+          type: string
+        album:
+          type: string
+        description:
+          type: string
+        audioUrl:
+          type: string
+          format: uri
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+paths:
+  /auth/register:
+    post:
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      summary: Аутентификация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Успешная аутентификация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Неверные учетные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Ошибка аутентификации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /songs:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Получение списка песен
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Список песен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Song'
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  currentPage:
+                    type: integer
+        '401':
+          description: Ошибка аутентификации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403': 
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /songs/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Получение информации о конкретной песне
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Информация о песне
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Song'
+
+  /songs/{id}/like:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Поставить лайк песне
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Лайк успешно поставлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+
+  /songs/{id}/dislike:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Поставить дизлайк песне
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Дизлайк успешно поставлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /songs/search:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Поиск песен по названию или исполнителю
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: Поисковый запрос (название песни или имя исполнителя)
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Результаты поиска
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Song'
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  currentPage:
+                    type: integer
+        '401':
+          description: Ошибка аутентификации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Доступ запрещен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /recommendations:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Получение персональных рекомендаций
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Список рекомендованных песен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recommendations:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Song'
+                        - type: object
+                          properties:
+                            similarity:
+                              type: number
+                              format: float
+
+  /recommendations/random:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Получение случайных треков
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Список случайных песен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  songs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Song'
