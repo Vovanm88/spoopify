@@ -2,9 +2,10 @@
 
 ## 1. Структура проекта
 
+
 ### 1.1 Основная структура папок
 
-```java
+    ```java
 src/
 ├── main/
 │ ├── java/
@@ -55,11 +56,11 @@ src/
 │ │ │ ├── UserNotFoundException.java
 │ │ │ └── SongNotFoundException.java
 │ │ │
-│ │ ├── security/
-│ │ │ ├── JwtTokenProvider.java # Генерация и валидация JWT
-│ │ │ ├── UserDetailsServiceImpl.java
-│ │ │ └── JwtAuthenticationFilter.java
-│ │
+│ │ └── security/
+│ │   ├── JwtTokenProvider.java # Генерация и валидация JWT
+│ │   ├── UserDetailsServiceImpl.java
+│ │   └── JwtAuthenticationFilter.java
+│ │ 
 │ ├── resources/
 │ │ ├── application.yml # Основные настройки приложения
 │ │ ├── application-dev.yml # Настройки для разработки
