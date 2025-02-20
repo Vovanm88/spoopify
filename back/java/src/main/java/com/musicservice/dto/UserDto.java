@@ -8,4 +8,6 @@ public class UserDto {
     private String username;
     private String login;
     private String role;
+    //private String passwordHash;
+    private String sessionToken;
 }

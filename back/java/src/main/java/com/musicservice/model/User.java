@@ -18,7 +18,7 @@ public class User {
     private UUID id;
     private String username;
     private String login;
-    private String passwordHash;
     private String role;
     private String sessionToken;
+    private String passwordHash;
 }

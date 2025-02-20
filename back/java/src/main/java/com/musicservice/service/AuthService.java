@@ -36,28 +36,30 @@ public class AuthService {
     public AuthResponse login(AuthRequest authRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(authRequest.getLogin(), authRequest.getPassword())
             );
+            User user = userRepository.findByLogin(authRequest.getLogin())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+            String token = jwtTokenProvider.createToken(user.getUsername(), user.getRole());
+            String refreshToken = jwtTokenProvider.createRefreshToken(user.getUsername());
 
-            User user = (User) authentication.getPrincipal();
-            String token = jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
-
-            return new AuthResponse(token, user.toDto());
+            return new AuthResponse(token, refreshToken, user.toDto());
         } catch (AuthenticationException e) {
             throw new UserNotFoundException("Invalid email or password");
         }
     }
 
     public UserDto register(UserDto userDto) {
-        if (userRepository.existsByEmail(userDto.getEmail())) {
+        if (userRepository.existsByLogin(userDto.getLogin())) {
             throw new IllegalArgumentException("Email already in use");
         }
 
         User user = new User();
         user.setUsername(userDto.getUsername());
-        user.setEmail(userDto.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(userDto.getPassword()));
+        user.setLogin(userDto.getLogin());
+        user.setPasswordHash(passwordEncoder.encode(userDto.getPasswordHash()));
         user.setRole("USER");
+        user.setSessionToken(jwtTokenProvider.generateSessionToken());
 
         userRepository.save(user);
 
@@ -71,10 +73,10 @@ public class AuthService {
         }
 
         String username = jwtTokenProvider.getUsername(oldToken);
-        User user = userRepository.findByEmail(username)
+        User user = userRepository.findByLogin(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        String newToken = jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
+        String newToken = jwtTokenProvider.createToken(user.getUsername(), user.getRole());
         return new AuthResponse(newToken, user.toDto());
     }
 
