@@ -41,15 +41,15 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
     }
 
-    public User updateUser(Long id, UserDto userDto) {
-        User user = getUserById(id);
-        
-        user.setUsername(userDto.getUsername());
-        if (userDto.getPassword() != null) {
-            user.setPasswordHash(passwordEncoder.encode(userDto.getPassword()));
-        }
+    public UserDto updateUser(UserDto userDto) {
+        User user = userRepository.findByEmail(userDto.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        return userRepository.save(user);
+        user.setUsername(userDto.getUsername());
+        user.setPasswordHash(passwordEncoder.encode(userDto.getPassword()));
+        userRepository.save(user);
+
+        return user.toDto();
     }
 
     public void deleteUser(Long id) {
