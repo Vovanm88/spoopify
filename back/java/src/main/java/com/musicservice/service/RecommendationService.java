@@ -35,6 +35,38 @@ public class RecommendationService {
         this.recommendationServiceUrl = recommendationServiceUrl;
         this.songRepository = songRepository;
     }
+    @Data
+    @AllArgsConstructor
+    private static class RecommendationResponse {
+        private List<String> songIds;
+        private List<Float> scores;
+    }
+
+    public List<SongDto> getPersonalRecommendations(String userId) {
+        try {
+            ResponseEntity<RecommendationResponse> response = restTemplate.getForEntity(
+                    recommendationServiceUrl + "/api/recommendations/{userId}?type=personal",
+                    RecommendationResponse.class,
+                    userId
+            );
+            
+            if (response.getBody() == null || response.getBody().getSongIds() == null) {
+                log.warn("Получен пустой ответ от сервиса рекомендаций для пользователя {}", userId);
+                return Collections.emptyList();
+            }
+
+            List<String> songIds = response.getBody().getSongIds();
+            return songIds.stream()
+                    .map(id -> songRepository.findById(UUID.fromString(id)))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Ошибка при получении персональных рекомендаций для пользователя {}: {}", userId, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
     public List<SongDto> getRecommendations(String userId) {
         try {
             ResponseEntity<RecommendationResponse> response = restTemplate.getForEntity(
@@ -53,6 +85,26 @@ public class RecommendationService {
             log.error("Ошибка при получении рекомендаций для пользователя {}: {}", userId, e.getMessage());
             return Collections.emptyList();
         }
+    }
+    public SongDto getRandomTracks() {
+        try {
+            ResponseEntity<RandomTrackResponse> response = restTemplate.getForEntity(
+                    recommendationServiceUrl + "/api/random",
+                    RandomTrackResponse.class
+            );
+            String songId = response.getBody().getSongId();
+            return songRepository.findById(UUID.fromString(songId))
+                    .map(this::convertToDto)
+                    .orElseThrow(() -> new RuntimeException("Песня не найдена"));
+        } catch (Exception e) {
+            log.error("Ошибка при получении случайного трека: {}", e.getMessage());
+            throw new RuntimeException("Не удалось получить случайный трек");
+        }
+    }
+
+    @Data
+    private static class RandomTrackResponse {
+        private String songId;
     }
 
     private SongDto convertToDto(Song song) {
@@ -95,9 +147,4 @@ public class RecommendationService {
         private LocalDateTime timestamp;
     }
 
-    @Data
-    private static class RecommendationResponse {
-        private List<String> songIds;
-        private List<Float> scores;
-    }
 }
