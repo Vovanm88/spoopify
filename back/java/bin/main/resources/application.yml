@@ -1,8 +1,14 @@
+security:
+  jwt:
+    token:
+      secret-key: "secret_key"
+      expire-length: 3600000
+
 server:
   port: 8081  # или любой другой порт
 
 recommendation-service:
-  url: http://localhost:8081
+  url: http://localhost:8085
 
 aws:
   s3:
@@ -10,3 +16,7 @@ aws:
     access-key: your-access-key
     secret-key: your-secret-key
     region: your-region
+
+spring:
+  profiles:
+    active: dev  

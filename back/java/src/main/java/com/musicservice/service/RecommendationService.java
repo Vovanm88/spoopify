@@ -1,23 +1,24 @@
 package com.musicservice.service;
 
-import com.musicservice.repository.SongRepository;
-import com.musicservice.dto.SongDto;
-import com.musicservice.model.Song;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.musicservice.dto.SongDto;
+import com.musicservice.model.Song;
+import com.musicservice.repository.SongRepository;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -28,7 +29,7 @@ public class RecommendationService {
 
     public RecommendationService(
             RestTemplate restTemplate,
-            @Value("${recommendation-service.url}") String recommendationServiceUrl,
+            @Value("${recommendation-service.url:http://localhost:8085}") String recommendationServiceUrl,
             SongRepository songRepository // добавляем в конструктор
     ) {
         this.restTemplate = restTemplate;

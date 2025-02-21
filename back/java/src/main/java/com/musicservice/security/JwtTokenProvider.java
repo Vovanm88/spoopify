@@ -11,8 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import com.musicservice.exception.InvalidJwtAuthenticationException;
 import com.musicservice.config.JwtConfig;
+import com.musicservice.exception.InvalidJwtAuthenticationException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -38,11 +38,21 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        if (jwtConfig != null) {
+        // Проверяем, что конфигурация не null и содержит валидные значения
+        if (jwtConfig != null && jwtConfig.getSecretKey() != null && !jwtConfig.getSecretKey().isEmpty()) {
             this.secretKey = jwtConfig.getSecretKey();
-            this.validityInMilliseconds = jwtConfig.getValidityInMilliseconds();
+            // Проверяем, что значение больше 0
+            if (jwtConfig.getValidityInMilliseconds() > 0) {
+                this.validityInMilliseconds = jwtConfig.getValidityInMilliseconds();
+            }
         }
-        // Изменяем способ создания ключа
+        
+        // Проверяем, что secretKey не null перед кодированием
+        if (secretKey == null || secretKey.isEmpty()) {
+            throw new IllegalStateException("Secret key не может быть пустым");
+        }
+        
+        // Кодируем ключ в Base64
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
     

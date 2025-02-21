@@ -45,8 +45,8 @@ public class User {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<UserVector> userVectors = new HashSet<>();
+    //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    //private Set<UserVector> userVectors = new HashSet<>();
 
     @ManyToMany
     @JoinTable(

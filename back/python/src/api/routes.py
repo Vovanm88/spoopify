@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 import random
 from .models import FeedbackModel, RecommendationResponse
-from services.recommendation_service import RecommendationService
+from .recommendation_service import RecommendationService
 
 router = APIRouter()
 recommendation_service = RecommendationService()

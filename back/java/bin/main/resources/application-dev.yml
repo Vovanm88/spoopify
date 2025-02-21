@@ -1,0 +1,31 @@
+
+recommendation-service:
+  url: http://localhost:8085
+  
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  # Опционально: включаем консоль H2 для просмотра данных через браузер
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+cloud:
+  aws:
+    credentials:
+      access-key: dummy-key
+      secret-key: dummy-secret
+    region:
+      static: us-east-1
+    stack:
+      auto: false
+    s3:
+      bucket: dummy-bucket

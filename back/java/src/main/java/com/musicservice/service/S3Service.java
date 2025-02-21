@@ -1,23 +1,24 @@
 package com.musicservice.service;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.UUID;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 
 @Service
 public class S3Service {
 
     private final AmazonS3 s3Client;
     
-    @Value("${aws.s3.bucket-name}")
+    @Value("${aws.s3.bucket-name:'pumpum'}")
     private String bucketName;
 
     @Autowired

@@ -31,17 +31,19 @@ public interface SongRepository extends JpaRepository<Song, UUID> {
     
     boolean existsByS3FilePath(String s3FilePath);
 
-    @Query("SELECT s FROM Song s JOIN s.likedSongs u WHERE u.id = :userId")
+    @Query("SELECT s FROM Song s JOIN s.likedByUsers u WHERE u.id = :userId")
     List<Song> findLikedSongsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT s FROM Song s JOIN s.dislikedSongs u WHERE u.id = :userId")
+    @Query("SELECT s FROM Song s JOIN s.dislikedByUsers u WHERE u.id = :userId")
     List<Song> findDislikedSongsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT COUNT(u) > 0 FROM Song s JOIN s.likedSongs u " +
-           "WHERE s.id = :songId AND u.id = :userId")
+    @Query("SELECT COUNT(u) > 0 FROM Song s JOIN s.likedByUsers u " + 
+       "WHERE s.id = :songId AND u.id = :userId")
     boolean isLikedByUser(@Param("songId") UUID songId, @Param("userId") Long userId);
 
-    @Query("SELECT COUNT(u) > 0 FROM Song s JOIN s.dislikedSongs u " +
-           "WHERE s.id = :songId AND u.id = :userId")
+// ... existing code ...
+    @Query("SELECT COUNT(u) > 0 FROM Song s JOIN s.dislikedByUsers u " +
+       "WHERE s.id = :songId AND u.id = :userId")
     boolean isDislikedByUser(@Param("songId") UUID songId, @Param("userId") Long userId);
+// ... existing code ...
 }
