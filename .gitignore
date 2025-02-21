@@ -1,4 +1,5 @@
 # Java
+bin/
 build/
 .gradle
 *.class
