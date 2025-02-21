@@ -73,6 +73,8 @@ src/
 - `AdminController`: GET /admin/users, GET /admin/statistics
 - `SongController`: GET /api/songs, POST /api/songs/{id}/like, POST /api/songs/{id}/dislike
 - `UserController`: GET /api/users/me, PUT /api/users/me
+- `RecommendationController`: GET /api/recommendations, GET /api/recommendations/random, GET /api/recommendations/personal
+
 
 ### Services
 - `AuthService`: Аутентификация, регистрация, управление токенами
@@ -114,10 +116,15 @@ src/
 
 ## Взаимодействие с Python-микросервисом
 
-### Endpoints для взаимодействия:
+### Внутренние эндпоинты Python-микросервиса (недоступны извне):
 - GET /recommendations/{userId} - получение рекомендаций для пользователя
 - POST /feedback - отправка фидбека (лайки/дизлайки)
 - GET /random - получение случайного трека
+
+### Публичные эндпоинты Spring Boot (с аутентификацией):
+- GET /api/recommendations - получение персонализированных рекомендаций (требует JWT токен)
+- GET /api/recommendations/random - получение случайных треков (требует JWT токен)
+- GET /api/recommendations/personal - получение персональных рекомендаций (требует JWT токен)
 
 ### Формат данных для обмена:
 
