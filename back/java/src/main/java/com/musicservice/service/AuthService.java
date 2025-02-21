@@ -1,10 +1,37 @@
+package com.musicservice.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
+
+import com.musicservice.dto.AuthRequest;
+import com.musicservice.dto.AuthResponse;
+import com.musicservice.exception.UserNotFoundException;
+import com.musicservice.model.User;
+import com.musicservice.repository.UserRepository;
+import com.musicservice.security.JwtTokenProvider;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
+import com.musicservice.exception.AuthenticationFailedException;
+import com.musicservice.exception.UserAlreadyExistsException;
+import com.musicservice.model.UserRole;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     public AuthResponse login(AuthRequest authRequest) {
@@ -17,12 +44,7 @@ public class AuthService {
             );
             
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String accessToken = jwtTokenProvider.createToken(
-                    userDetails.getUsername(),
-                    userDetails.getAuthorities().stream()
-                            .map(GrantedAuthority::getAuthority)
-                            .collect(Collectors.toList())
-            );
+            String accessToken = jwtTokenProvider.createToken(userDetails.getUsername());
             String refreshToken = jwtTokenProvider.createRefreshToken(userDetails.getUsername());
 
             // Обновляем время последнего входа

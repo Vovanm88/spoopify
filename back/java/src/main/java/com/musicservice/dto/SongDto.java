@@ -3,6 +3,9 @@ package com.musicservice.dto;
 import lombok.Data;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SongDto {
     private String id;
     private String title;
