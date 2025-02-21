@@ -1,11 +1,9 @@
 package com.musicservice.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.musicservice.dto.AuthRequest;
@@ -17,11 +15,9 @@ import com.musicservice.security.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 import com.musicservice.exception.AuthenticationFailedException;
 import com.musicservice.exception.UserAlreadyExistsException;
 import com.musicservice.model.UserRole;
@@ -53,9 +49,9 @@ public class AuthService {
             user.setLastLoginAt(LocalDateTime.now());
             user.setSessionToken(accessToken);
             userRepository.save(user);
-
+            
             return AuthResponse.builder()
-                    .accessToken(accessToken)
+                    .token(accessToken)
                     .refreshToken(refreshToken)
                     .build();
         } catch (AuthenticationException e) {

@@ -1,6 +1,7 @@
 package com.musicservice.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,22 +12,22 @@ import com.musicservice.model.Song;
 import com.musicservice.model.User;
 
 @Repository
-public interface LikedSongRepository extends JpaRepository<Song, Long> {
+public interface LikedSongRepository extends JpaRepository<Song, UUID> {
     
     // Получить все лайкнутые песни пользователя
     List<Song> findAllByLikedByUsers(User user);
     
     // Проверить, лайкнул ли пользователь песню
-    boolean existsByLikedByUsersAndId(User user, Long songId);
+    boolean existsByLikedByUsersAndId(User user, UUID songId);
     
     // Получить количество лайков у песни
     @Query("SELECT COUNT(u) FROM Song s JOIN s.likedByUsers u WHERE s.id = :songId")
-    long countLikesBySongId(@Param("songId") Long songId);
+    long countLikesBySongId(@Param("songId") UUID songId);
     
     // Получить последние N лайкнутых песен пользователя
-    @Query("SELECT s FROM Song s JOIN s.likedByUsers u WHERE u = :user ORDER BY s.id DESC")
+    @Query("SELECT s FROM Song s JOIN s.likedByUsers u WHERE u = :user ORDER BY s.id DESC LIMIT :limit")
     List<Song> findLastLikedSongs(@Param("user") User user, @Param("limit") int limit);
     
     // Удалить лайк пользователя с песни
-    void deleteByLikedByUsersAndId(User user, Long songId);
+    void deleteByLikedByUsersAndId(User user, UUID songId);
 }

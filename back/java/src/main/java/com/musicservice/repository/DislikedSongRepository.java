@@ -1,7 +1,7 @@
 package com.musicservice.repository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,17 +12,22 @@ import com.musicservice.model.Song;
 import com.musicservice.model.User;
 
 @Repository
-public interface DislikedSongRepository extends JpaRepository<Song, Long> {
+public interface DislikedSongRepository extends JpaRepository<Song, UUID> {
     
-    List<Song> findByUsersDisliked(User user);
+    // Получить все дизлайкнутые песни пользователя
+    List<Song> findAllByDislikedByUsers(User user);
     
-    @Query("SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END FROM Song s JOIN s.usersDisliked u WHERE s.id = :songId AND u.id = :userId")
-    boolean isDislikedByUser(@Param("songId") Long songId, @Param("userId") Long userId);
+    // Проверить, дизлайкнул ли пользователь песню
+    boolean existsByDislikedByUsersAndId(User user, UUID songId);
     
-    Optional<Song> findBySongIdAndUserDisliked(Long songId, User user);
+    // Получить количество дизлайков у песни
+    @Query("SELECT COUNT(u) FROM Song s JOIN s.dislikedByUsers u WHERE s.id = :songId")
+    long countDislikesBySongId(@Param("songId") UUID songId);
     
-    void deleteBySongIdAndUserDisliked(Long songId, User user);
+    // Получить последние N дизлайкнутых песен пользователя
+    @Query("SELECT s FROM Song s JOIN s.dislikedByUsers u WHERE u = :user ORDER BY s.id DESC LIMIT :limit")
+    List<Song> findLastDislikedSongs(@Param("user") User user, @Param("limit") int limit);
     
-    @Query("SELECT COUNT(s) FROM Song s JOIN s.usersDisliked u WHERE u.id = :userId")
-    long countDislikedSongsByUser(@Param("userId") Long userId);
+    // Удалить дизлайк пользователя с песни
+    void deleteByDislikedByUsersAndId(User user, UUID songId);
 }

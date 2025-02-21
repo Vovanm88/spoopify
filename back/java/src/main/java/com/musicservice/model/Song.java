@@ -9,6 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.ManyToMany;
+import java.util.Set;
+import java.util.HashSet;
 
 
 @Entity
@@ -35,4 +38,10 @@ public class Song {
 
     @Column(name = "s3_file_path", nullable = false)
     private String s3FilePath;
+
+    @ManyToMany(mappedBy = "likedSongs")
+    private Set<User> likedByUsers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "dislikedSongs")
+    private Set<User> dislikedByUsers = new HashSet<>();
 }

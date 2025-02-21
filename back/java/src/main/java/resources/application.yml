@@ -1,0 +1,9 @@
+recommendation-service:
+  url: http://localhost:8081
+
+aws:
+  s3:
+    bucket-name: your-bucket-name
+    access-key: your-access-key
+    secret-key: your-secret-key
+    region: your-region
