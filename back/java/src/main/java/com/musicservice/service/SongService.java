@@ -51,25 +51,38 @@ public class SongService {
     public void deleteSong(UUID id) {
         songRepository.deleteById(id);
     }
-
     public void likeSong(User user, UUID songId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new RuntimeException("Song not found"));
+                
+        // Проверяем, не стоит ли уже дислайк
+        if (dislikedSongRepository.existsByDislikedByUsersAndId(user, songId)) {
+            song.getDislikedByUsers().remove(user);
+        }
+        
+        // Проверяем, не стоит ли уже лайк
         if (!likedSongRepository.existsByLikedByUsersAndId(user, songId)) {
             song.getLikedByUsers().add(user);
             songRepository.save(song);
         }
     }
-
+    
     public void dislikeSong(User user, UUID songId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new RuntimeException("Song not found"));
+                
+        // Проверяем, не стоит ли уже лайк
+        if (likedSongRepository.existsByLikedByUsersAndId(user, songId)) {
+            song.getLikedByUsers().remove(user);
+        }
+        
+        // Проверяем, не стоит ли уже дислайк
         if (!dislikedSongRepository.existsByDislikedByUsersAndId(user, songId)) {
             song.getDislikedByUsers().add(user);
             songRepository.save(song);
         }
     }
-
+    
     public List<Song> getLikedSongsByUser(User user) {
         return likedSongRepository.findAllByLikedByUsers(user);
     }

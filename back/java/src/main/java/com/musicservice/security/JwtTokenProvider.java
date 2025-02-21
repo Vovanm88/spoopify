@@ -108,7 +108,9 @@ public class JwtTokenProvider {
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes())) // Обновленный метод подписи
                 .compact();
     }
-    
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token);
+    }
     
     public String generateSessionToken() {
         return Base64.getEncoder().encodeToString((new Date().toString() + Math.random()).getBytes());
