@@ -1,3 +1,6 @@
+server:
+  port: 8081  # или любой другой порт
+
 recommendation-service:
   url: http://localhost:8081
 
