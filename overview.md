@@ -33,6 +33,8 @@ The frontend provides the following user interfaces:
     -   `AdminController`: Handles administrative endpoints (`/admin/users`, `/admin/statistics`).
     -   `SongController`: Manages song-related endpoints (`/api/songs`, `/api/songs/{id}/like`, `/api/songs/{id}/dislike`).
     -   `UserController`: Manages user-related endpoints (`/api/users/me`, `PUT /api/users/me`).
+    -   `RecommendationController`: Handles recommendation endpoints (`/recommendations`, `/recommendations/random`).
+
 -   **Services:**
     -   `AuthService`: Handles authentication, registration, and token management.
     -   `UserService`: Manages CRUD operations for users.
@@ -58,6 +60,8 @@ The frontend provides the following user interfaces:
 ### 4.2 Python Microservice
 
 -   **Endpoints:**
+    -   `GET /recommendations`: Returns personalized song recommendations for a user.
+    -   `GET /recommendations/random`: Returns random tracks.
     -   `GET /recommendations/{userId}`: Returns song recommendations for a user.
     -   `POST /feedback`: Receives user feedback (likes/dislikes).
     -   `GET /random`: Returns a random track.
@@ -72,6 +76,8 @@ The frontend provides the following user interfaces:
     ```
 
 ## 5. File Dependencies and Interactions
+-   `RecommendationService` is used by `SongService` to fetch song recommendations from the Python microservice.
+-   `RecommendationController` uses `RecommendationService` to handle requests related to recommendations.
 
 -   `AuthController` uses `AuthService` for authentication and registration.
 -   `SongController` uses `SongService` for managing songs and user interactions (likes/dislikes).
