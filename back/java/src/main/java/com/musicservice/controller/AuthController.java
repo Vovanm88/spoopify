@@ -36,9 +36,10 @@ public class AuthController {
         User user = new User();
         user.setUsername(registrationDto.getUsername());
         user.setLogin(registrationDto.getLogin());
-        // Здесь должно быть хеширование пароля
         user.setPasswordHash(registrationDto.getPassword());
-        
+        System.out.println("Registering new user:");
+        System.out.println("Username: " + user.getUsername());
+        System.out.println("Login: " + user.getLogin());
         try {
             User registeredUser = authService.register(user);
             return ResponseEntity.ok(registeredUser);
@@ -50,6 +51,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         LoginResponse response = authService.login(loginRequest);
+        System.out.println("User login attempt:");
+        System.out.println("Email: " + loginRequest.getEmail());
+        System.out.println("Login successful");
         return ResponseEntity.ok(response);
     }
 

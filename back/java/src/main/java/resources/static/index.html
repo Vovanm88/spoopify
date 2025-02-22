@@ -48,6 +48,9 @@
         <div id="songs-section" style="display:none;">
             <h2>Список песен</h2>
             <button onclick="getSongs()">Получить песни</button>
+            <button onclick="getRecommendations()">Получить рекомендации</button>
+            <button onclick="getRandomTrack()">Случайный трек</button>
+            <button onclick="getPersonalRecommendations()">Персональные рекомендации</button>
             <ul id="songs-list"></ul>
         </div>
     </div>
@@ -57,29 +60,48 @@
 
         function register() {
             const username = document.getElementById('register-username').value;
-            const email = document.getElementById('register-email').value;
+            const login = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
+
+            // Создаем объект, соответствующий UserRegistrationDto
+            const registrationData = {
+                username: username,
+                login: login, 
+                password: password
+            };
 
             fetch('http://127.0.0.1:8080/v1/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password })
+                body: JSON.stringify(registrationData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при регистрации');
+                }
+                return response.json();
+            })
             .then(data => {
                 alert('Регистрация успешна!');
             })
-            .catch(error => console.error('Ошибка:', error));
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Ошибка при регистрации: ' + error.message);
+            });
         }
 
         function login() {
-            const email = document.getElementById('login-email').value;
+            const login = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-
+            // Создаем объект, соответствующий LoginRequest
+            const loginData = {
+                email: login,
+                password: password
+            };
             fetch('http://127.0.0.1:8080/v1/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify(loginData)
             })
             .then(response => response.json())
             .then(data => {
@@ -89,22 +111,63 @@
             })
             .catch(error => console.error('Ошибка:', error));
         }
-
         function getSongs() {
-            fetch('http://127.0.0.1:8080/v1/songs', {
+            fetch('http://127.0.0.1:8080/v1/songs/1', {   
                 headers: { 'Authorization': `Bearer ${token}` }
             })
-            .then(response => response.json())
-            .then(data => {
-                const songsList = document.getElementById('songs-list');
-                songsList.innerHTML = '';
-                data.content.forEach(song => {
-                    const li = document.createElement('li');
-                    li.textContent = `${song.title} - ${song.artist}`;
-                    songsList.appendChild(li);
-                });
+            .then(handleResponse)
+            .then(displaySongs)
+            .catch(handleError);
+        }
+
+        function getRecommendations() {
+            fetch('http://127.0.0.1:8080/api/recommendations', {
+                headers: { 'Authorization': `Bearer ${token}` }
             })
-            .catch(error => console.error('Ошибка:', error));
+            .then(handleResponse)
+            .then(displaySongs)
+            .catch(handleError);
+        }
+
+        function getRandomTrack() {
+            fetch('http://127.0.0.1:8080/api/recommendations/random', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(handleResponse)
+            .then(song => displaySongs([song]))
+            .catch(handleError);
+        }
+
+        function getPersonalRecommendations() {
+            fetch('http://127.0.0.1:8080/api/recommendations/personal', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(handleResponse)
+            .then(displaySongs)
+            .catch(handleError);
+        }
+
+        function handleResponse(response) {
+            if (!response.ok) {
+                throw new Error('Ошибка сети');
+            }
+            return response.json();
+        }
+
+        function displaySongs(data) {
+            const songsList = document.getElementById('songs-list');
+            songsList.innerHTML = '';
+            const songs = Array.isArray(data) ? data : data.content || [data];
+            songs.forEach(song => {
+                const li = document.createElement('li');
+                li.textContent = `${song.title} - ${song.artist}`;
+                songsList.appendChild(li);
+            });
+        }
+
+        function handleError(error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка: ' + error.message);
         }
     </script>
 </body>
