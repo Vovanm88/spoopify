@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Музыкальный сервис</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Музыкальный сервис</h1>
+
+        <div id="auth-section">
+            <h2>Регистрация</h2>
+            <div class="form-group">
+                <label for="register-username">Имя пользователя</label>
+                <input type="text" id="register-username">
+            </div>
+            <div class="form-group">
+                <label for="register-email">Email</label>
+                <input type="email" id="register-email">
+            </div>
+            <div class="form-group">
+                <label for="register-password">Пароль</label>
+                <input type="password" id="register-password">
+            </div>
+            <button onclick="register()">Зарегистрироваться</button>
+
+            <h2>Вход</h2>
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Пароль</label>
+                <input type="password" id="login-password">
+            </div>
+            <button onclick="login()">Войти</button>
+        </div>
+
+        <div id="songs-section" style="display:none;">
+            <h2>Список песен</h2>
+            <button onclick="getSongs()">Получить песни</button>
+            <ul id="songs-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        let token = '';
+
+        function register() {
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            fetch('http://127.0.0.1:8080/v1/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Регистрация успешна!');
+            })
+            .catch(error => console.error('Ошибка:', error));
+        }
+
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            fetch('http://127.0.0.1:8080/v1/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                token = data.token;
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('songs-section').style.display = 'block';
+            })
+            .catch(error => console.error('Ошибка:', error));
+        }
+
+        function getSongs() {
+            fetch('http://127.0.0.1:8080/v1/songs', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const songsList = document.getElementById('songs-list');
+                songsList.innerHTML = '';
+                data.content.forEach(song => {
+                    const li = document.createElement('li');
+                    li.textContent = `${song.title} - ${song.artist}`;
+                    songsList.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Ошибка:', error));
+        }
+    </script>
+</body>
+</html>

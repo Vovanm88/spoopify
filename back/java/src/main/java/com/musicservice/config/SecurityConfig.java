@@ -43,6 +43,9 @@ public class SecurityConfig{
             .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/index.html").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Разрешаем доступ к статическим ресурсам
+
                 .requestMatchers("/v1/auth/**").permitAll()  // Добавляем префикс /v1
                 .requestMatchers("/v1/admin/**").hasRole("ADMIN")  // Добавляем префикс /v1
                 .requestMatchers("/v1/api/**").authenticated()  // Добавляем префикс /v1

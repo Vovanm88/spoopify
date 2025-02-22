@@ -20,3 +20,8 @@ aws:
 spring:
   profiles:
     active: dev  
+  web:
+    resources:
+      static-locations: classpath:/static/
+  mvc:
+    static-path-pattern: /**

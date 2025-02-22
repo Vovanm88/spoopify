@@ -14,14 +14,15 @@ public class WebConfig implements WebMvcConfigurer {
         configurer.setPatternParser(new PathPatternParser());
         configurer.addPathPrefix("/v1", c -> true);
     }
-    
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")  // Изменено с /* на /**
-                .allowedOrigins("http://localhost:8080")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
+                .allowedOrigins("http://localhost:8080", "*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
+                .allowedHeaders("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "*")
                 .exposedHeaders("Authorization")  // Добавлено для JWT
+                .maxAge(3600L) 
                 .allowCredentials(true);
     }
 }
