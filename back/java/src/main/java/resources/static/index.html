@@ -112,7 +112,7 @@
             .catch(error => console.error('Ошибка:', error));
         }
         function getSongs() {
-            fetch('http://127.0.0.1:8080/v1/songs/1', {   
+            fetch('http://127.0.0.1:8080/v1/api/songs/1', {   
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(handleResponse)
@@ -121,7 +121,7 @@
         }
 
         function getRecommendations() {
-            fetch('http://127.0.0.1:8080/api/recommendations', {
+            fetch('http://127.0.0.1:8080/v1/api/recommendations/personal', {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(handleResponse)
@@ -130,7 +130,7 @@
         }
 
         function getRandomTrack() {
-            fetch('http://127.0.0.1:8080/api/recommendations/random', {
+            fetch('http://127.0.0.1:8080/v1/api/recommendations/random', {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(handleResponse)
@@ -139,7 +139,7 @@
         }
 
         function getPersonalRecommendations() {
-            fetch('http://127.0.0.1:8080/api/recommendations/personal', {
+            fetch('http://127.0.0.1:8080/v1/api/recommendations/personal', {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(handleResponse)

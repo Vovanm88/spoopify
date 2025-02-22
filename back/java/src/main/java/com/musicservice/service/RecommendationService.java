@@ -52,7 +52,7 @@ public class RecommendationService {
             );
             
             if (response.getBody() == null || response.getBody().getSongIds() == null) {
-                log.warn("Получен пустой ответ от сервиса рекомендаций для пользователя {}", userId);
+                log.warn("Received an empty response from the recommendation service for user {}", userId);
                 return Collections.emptyList();
             }
 
@@ -64,7 +64,7 @@ public class RecommendationService {
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Ошибка при получении персональных рекомендаций для пользователя {}: {}", userId, e.getMessage());
+            log.error("Error getting personal recommendations for user {}: {}", userId, e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -83,7 +83,7 @@ public class RecommendationService {
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Ошибка при получении рекомендаций для пользователя {}: {}", userId, e.getMessage());
+            log.error("Error getting recommendations for user {}: {}", userId, e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -98,8 +98,8 @@ public class RecommendationService {
                     .map(this::convertToDto)
                     .orElseThrow(() -> new RuntimeException("Песня не найдена"));
         } catch (Exception e) {
-            log.error("Ошибка при получении случайного трека: {}", e.getMessage());
-            throw new RuntimeException("Не удалось получить случайный трек");
+            log.error("Error getting random track: {}", e.getMessage());
+            throw new RuntimeException("Failed to get random track");
         }
     }
 
@@ -135,7 +135,7 @@ public class RecommendationService {
                     Void.class
             );
         } catch (Exception e) {
-            log.error("Ошибка при отправке фидбека: {}", e.getMessage());
+            log.error("Error sending feedback: {}", e.getMessage());
         }
     }
 

@@ -1,16 +1,17 @@
 package com.musicservice.service;
 
-import com.musicservice.model.Song;
-import com.musicservice.model.User;
-import com.musicservice.repository.SongRepository;
-import com.musicservice.repository.LikedSongRepository;
-import com.musicservice.repository.DislikedSongRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.musicservice.model.Song;
+import com.musicservice.model.User;
+import com.musicservice.repository.DislikedSongRepository;
+import com.musicservice.repository.LikedSongRepository;
+import com.musicservice.repository.SongRepository;
 
 @Service
 public class SongService {

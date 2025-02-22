@@ -39,6 +39,14 @@ public class S3Service {
         return fileName;
     }
 
+
+    public InputStream getFileStream(String fileName) throws IOException {
+        S3Object s3Object = s3Client.getObject(bucketName, fileName);
+        return s3Object.getObjectContent();
+    }
+
+
+
     public S3Object downloadFile(String fileName) {
         return s3Client.getObject(bucketName, fileName);
     }

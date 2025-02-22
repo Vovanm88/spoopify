@@ -1,22 +1,33 @@
 package com.musicservice.controller;
 
-import com.musicservice.dto.SongDto;
-import com.musicservice.model.Song;
-import com.musicservice.model.User;
-import com.musicservice.service.SongService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.musicservice.dto.SongDto;
+import com.musicservice.model.Song;
+import com.musicservice.model.User;
+import com.musicservice.service.S3Service;
+import com.musicservice.service.SongService;
 
 @RestController
 @RequestMapping("/api/songs")
 public class SongController {
 
+    @Autowired
+    private S3Service s3Service;
+    
     @Autowired
     private SongService songService;
 
@@ -51,6 +62,23 @@ public class SongController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{id}/download")
+    public ResponseEntity<?> downloadSong(@PathVariable UUID id) {
+        return songService.getSongById(id)
+                .map(song -> {
+                    try (InputStream inputStream = s3Service.getFileStream(song.getS3FilePath())) {
+                        byte[] content = inputStream.readAllBytes();
+                        return ResponseEntity.ok()
+                                .header("Content-Disposition", "attachment; filename=\"" + song.getTitle() + ".mp3\"")
+                                .body(content);
+                    } catch (IOException e) {
+                        return ResponseEntity.status(500).build();
+                    }
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    
     @PostMapping("/{id}/like")
     public ResponseEntity<Void> likeSong(@AuthenticationPrincipal User user, @PathVariable UUID id) {
         songService.likeSong(user, id);
