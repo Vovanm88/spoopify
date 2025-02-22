@@ -41,9 +41,8 @@ public interface SongRepository extends JpaRepository<Song, UUID> {
        "WHERE s.id = :songId AND u.id = :userId")
     boolean isLikedByUser(@Param("songId") UUID songId, @Param("userId") Long userId);
 
-// ... existing code ...
     @Query("SELECT COUNT(u) > 0 FROM Song s JOIN s.dislikedByUsers u " +
        "WHERE s.id = :songId AND u.id = :userId")
     boolean isDislikedByUser(@Param("songId") UUID songId, @Param("userId") Long userId);
-// ... existing code ...
+
 }

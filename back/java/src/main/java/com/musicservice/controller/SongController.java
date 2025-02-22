@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.musicservice.dto.SongDto;
 import com.musicservice.model.Song;
-import com.musicservice.model.User;
+import com.musicservice.repository.UserRepository;
 import com.musicservice.service.S3Service;
 import com.musicservice.service.SongService;
 
@@ -30,7 +32,10 @@ public class SongController {
     
     @Autowired
     private SongService songService;
-
+    
+    @Autowired
+    private UserRepository userRepository;
+    
     @GetMapping
     public ResponseEntity<List<SongDto>> getAllSongs() {
         List<Song> songs = songService.getAllSongs();
@@ -78,16 +83,26 @@ public class SongController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/like")
-    public ResponseEntity<Void> likeSong(@AuthenticationPrincipal User user, @PathVariable UUID id) {
-        songService.likeSong(user, id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> likeSong(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id) {
+        String username = userDetails.getUsername();
+        return userRepository.findByUsername(username)
+            .map(user -> {
+                songService.likeSong(user, id);
+                return ResponseEntity.ok().build();
+            })
+            .orElse(ResponseEntity.badRequest().build());
     }
-
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/dislike")
-    public ResponseEntity<Void> dislikeSong(@AuthenticationPrincipal User user, @PathVariable UUID id) {
-        songService.dislikeSong(user, id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> dislikeSong(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id) {
+        String username = userDetails.getUsername();
+        return userRepository.findByUsername(username)
+                .map(user -> {
+                    songService.dislikeSong(user, id);
+                    return ResponseEntity.ok().build();
+                })
+                .orElse(ResponseEntity.badRequest().build());
     }
 }

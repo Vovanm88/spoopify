@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.musicservice.model.Song;
 import com.musicservice.model.User;
@@ -59,15 +60,17 @@ public class SongService {
         // Проверяем, не стоит ли уже дислайк
         if (dislikedSongRepository.existsByDislikedByUsersAndId(user, songId)) {
             song.getDislikedByUsers().remove(user);
+            user.getDislikedSongs().remove(song);
         }
         
         // Проверяем, не стоит ли уже лайк
         if (!likedSongRepository.existsByLikedByUsersAndId(user, songId)) {
             song.getLikedByUsers().add(user);
+            user.getLikedSongs().add(song);
             songRepository.save(song);
         }
     }
-    
+    @Transactional
     public void dislikeSong(User user, UUID songId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new RuntimeException("Song not found"));
@@ -75,11 +78,13 @@ public class SongService {
         // Проверяем, не стоит ли уже лайк
         if (likedSongRepository.existsByLikedByUsersAndId(user, songId)) {
             song.getLikedByUsers().remove(user);
+            user.getLikedSongs().remove(song);
         }
         
         // Проверяем, не стоит ли уже дислайк
         if (!dislikedSongRepository.existsByDislikedByUsersAndId(user, songId)) {
             song.getDislikedByUsers().add(user);
+            user.getDislikedSongs().add(song);
             songRepository.save(song);
         }
     }
