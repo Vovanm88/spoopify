@@ -1,14 +1,19 @@
 package com.musicservice.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.musicservice.dto.AuthRequest;
+
 import com.musicservice.dto.AuthResponse;
-import com.musicservice.dto.UserDto;
+import com.musicservice.dto.LoginRequest;
+import com.musicservice.dto.LoginResponse;
+
+import com.musicservice.dto.UserRegistrationDto;
 import com.musicservice.model.User;
 import com.musicservice.service.AuthService;
 
@@ -26,25 +31,26 @@ public class AuthController {
         return ResponseEntity.ok("Service is healthy");
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
-        AuthResponse authResponse = authService.login(authRequest);
-        return ResponseEntity.ok(authResponse);
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody UserRegistrationDto registrationDto) {
+        User user = new User();
+        user.setUsername(registrationDto.getUsername());
+        user.setLogin(registrationDto.getLogin());
+        // Здесь должно быть хеширование пароля
+        user.setPasswordHash(registrationDto.getPassword());
+        
+        try {
+            User registeredUser = authService.register(user);
+            return ResponseEntity.ok(registeredUser);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error registering user: " + e.getMessage());
+        }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(UserDto us) {
-        User user = new User();
-        //System.out.println("Получен запрос на регистрацию пользователя: " + us.getUsername());
-        System.out.println("Данные пользователя: " + us.toString());
-        try {
-            authService.register(user);
-            System.out.println("Пользователь " + user.getUsername() + " успешно зарегистрирован");
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            System.out.println("Ошибка при регистрации пользователя " + user.getUsername() + ": " + e.getMessage());
-            throw e;
-        }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        LoginResponse response = authService.login(loginRequest);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh")

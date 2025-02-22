@@ -1,5 +1,7 @@
 package com.musicservice.dto;
 
+import com.musicservice.model.User;
+
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -9,11 +11,7 @@ import lombok.AllArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    private Long id;
-    private String username;
-    private String login;
-    private String role;
-    private String sessionToken;
-    private String passwordHash;
+public class LoginResponse {
+    private String token;
+    private User user;
 }

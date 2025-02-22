@@ -24,7 +24,7 @@ components:
           format: uuid
         username:
           type: string
-        email:
+        login:
           type: string
         role:
           type: string
@@ -69,7 +69,7 @@ paths:
               properties:
                 username:
                   type: string
-                email:
+                login:
                   type: string
                 password:
                   type: string
