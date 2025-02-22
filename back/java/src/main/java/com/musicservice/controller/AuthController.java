@@ -22,7 +22,7 @@ public class AuthController {
     private final AuthService authService;
     @PostMapping("/health")
     public ResponseEntity<String> healthCheck() {
-        System.out.println("Проверка работоспособности сервиса");
+        System.out.println("working");
         return ResponseEntity.ok("Service is healthy");
     }
 
