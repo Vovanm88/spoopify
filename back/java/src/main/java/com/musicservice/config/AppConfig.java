@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class AppConfig {
-    @Value("${recommendation-service.url:http://localhost:8080}")
+    @Value("${recommendation-service.url:http://localhost:8085}")
     private String recommendationServiceUrl;
 
     @Bean
