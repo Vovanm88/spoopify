@@ -49,3 +49,6 @@ yarn-error.log*
 *.swo
 dist/
 coverage/
+
+#secrets 
+*/application-secrets.yml
