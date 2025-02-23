@@ -18,6 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/static/");
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
         configurer.setPatternParser(new PathPatternParser());

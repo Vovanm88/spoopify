@@ -14,6 +14,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.musicservice.dto.FeedbackRequest;
 import com.musicservice.dto.SongDto;
 import com.musicservice.exception.BadRequestException;
 import com.musicservice.exception.InternalServerErrorException;
@@ -43,7 +44,7 @@ public class RecommendationService {
     }
     @Data
     @AllArgsConstructor
-    private static class RecommendationResponse {
+    private class RecommendationResponse {
         private List<String> songIds;
         private List<Float> scores;
     }
@@ -56,7 +57,7 @@ public class RecommendationService {
                     userId
             );
             
-            if (response.getBody() == null || response.getBody().getSongIds() == null) {
+            if (response == null || response.getBody() == null || response.getBody().getSongIds() == null) {
                 log.warn("Received an empty response from the recommendation service for user {}", userId);
                 return Collections.emptyList();
             }
@@ -168,15 +169,6 @@ public class RecommendationService {
             throw new RuntimeException("Неизвестная ошибка сервиса рекомендаций: " + e.getMessage());
         }
         return "Unknown error occurred";    
-    }
-
-    @Data
-    @AllArgsConstructor
-    private static class FeedbackRequest {
-        private String userId;
-        private String songId;
-        private String action;
-        private LocalDateTime timestamp;
     }
 
 }

@@ -54,6 +54,7 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "song_id")
     )
+    @Builder.Default
     private Set<Song> likedSongs = new HashSet<>();
 
     @ManyToMany
@@ -62,6 +63,7 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "song_id")
     )
+    @Builder.Default
     private Set<Song> dislikedSongs = new HashSet<>();
 
     @PrePersist
