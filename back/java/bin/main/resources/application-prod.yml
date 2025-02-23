@@ -1,5 +1,15 @@
-spring.datasource.url=jdbc:postgresql://localhost:5432/spoopify
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.hibernate.ddl-auto=update
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/spoopify
+    username: greh
+    password: isohateis
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+recommendation-service:
+  url: http://localhost:8085
