@@ -1,4 +1,5 @@
 # Java
+back/java/src/main/java/resources/application-secrets.yml
 bin/
 build/
 .gradle
