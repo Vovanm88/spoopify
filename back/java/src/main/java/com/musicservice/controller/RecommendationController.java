@@ -41,4 +41,11 @@ public class RecommendationController {
         String userId = userDetails.getUsername(); // используем userId вместо username
         return ResponseEntity.ok(recommendationService.getPersonalRecommendations(userId));
     }
+
+    @GetMapping("/health")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> checkHealth() {
+        String healthStatus = recommendationService.healthCheck();
+        return ResponseEntity.ok(healthStatus);
+    }
 }

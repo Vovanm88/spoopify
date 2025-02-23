@@ -138,6 +138,18 @@ public class RecommendationService {
             log.error("Error sending feedback: {}", e.getMessage());
         }
     }
+    public String healthCheck() {
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(
+                    recommendationServiceUrl + "/api/health",
+                    String.class
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Error checking recommendation service health: {}", e.getMessage());
+            throw new RuntimeException("Failed to check recommendation service status");
+        }
+    }
 
     @Data
     @AllArgsConstructor

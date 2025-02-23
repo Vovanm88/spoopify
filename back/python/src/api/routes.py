@@ -22,3 +22,11 @@ async def process_feedback(feedback: FeedbackModel):
 async def get_random_track():
     track = recommendation_service.get_random_track()
     return {"song_id": track}
+
+@router.get("/health")
+async def health_check():
+    try:
+        status = recommendation_service.health_check()  # вызываем метод хелсчека
+        return {"status": status}  # возвращаем статус
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))  # обрабатываем ошибки

@@ -9,4 +9,7 @@ public class WebController {
     public String index() {
         return "index.html";
     }
+    public String music() {
+        return "music.html";
+    }
 }

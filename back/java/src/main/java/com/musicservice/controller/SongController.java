@@ -94,6 +94,7 @@ public class SongController {
             })
             .orElse(ResponseEntity.badRequest().build());
     }
+
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/dislike")
     public ResponseEntity<?> dislikeSong(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id) {
@@ -104,5 +105,10 @@ public class SongController {
                     return ResponseEntity.ok().build();
                 })
                 .orElse(ResponseEntity.badRequest().build());
+    }
+    @GetMapping("/health")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> healthCheck(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok("Song service is up and running for user: " + userDetails.getUsername());
     }
 }

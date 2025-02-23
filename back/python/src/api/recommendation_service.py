@@ -24,3 +24,6 @@ class RecommendationService:
     def get_random_track(self) -> str:
         # Возвращаем случайный трек
         return random.choice(self.mock_songs)
+
+    def health_check(self) -> int:
+        return 200;
