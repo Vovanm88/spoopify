@@ -108,7 +108,7 @@ public class SongController {
     }
     @GetMapping("/health")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<String> healthCheck(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok("Song service is up and running for user: " + userDetails.getUsername());
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Song service is up and running");
     }
 }

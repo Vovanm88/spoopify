@@ -10,9 +10,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.musicservice.dto.SongDto;
+import com.musicservice.exception.BadRequestException;
+import com.musicservice.exception.InternalServerErrorException;
+import com.musicservice.exception.ServiceUnavailableException;
 import com.musicservice.model.Song;
 import com.musicservice.repository.SongRepository;
 
@@ -138,17 +143,31 @@ public class RecommendationService {
             log.error("Error sending feedback: {}", e.getMessage());
         }
     }
-    public String healthCheck() {
+    @SuppressWarnings("UseSpecificCatch")
+    public String healthCheck() throws ServiceUnavailableException, BadRequestException, InternalServerErrorException, RuntimeException {
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(
-                    recommendationServiceUrl + "/api/health",
+                    recommendationServiceUrl + "/api/health", 
                     String.class
             );
-            return response.getBody();
+            
+            if (response.getStatusCode().equals(org.springframework.http.HttpStatus.OK)) {
+                return response.getBody();
+            } else {
+                return "Recommendation service returned status: " + response.getStatusCode();
+            }
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            if (e.getMessage().contains("Read timed out")) {
+                throw new ServiceUnavailableException("Recommendation service not responding (timeout)");
+            }
+        } catch (HttpClientErrorException e) {
+            throw new BadRequestException("Некорректный запрос к сервису рекомендаций: " + e.getMessage());
+        } catch (HttpServerErrorException e) {
+            throw new InternalServerErrorException("Внутренняя ошибка сервиса рекомендаций: " + e.getMessage());
         } catch (Exception e) {
-            log.error("Error checking recommendation service health: {}", e.getMessage());
-            throw new RuntimeException("Failed to check recommendation service status");
+            throw new RuntimeException("Неизвестная ошибка сервиса рекомендаций: " + e.getMessage());
         }
+        return "Unknown error occurred";    
     }
 
     @Data

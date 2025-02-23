@@ -53,16 +53,16 @@
         <button onclick="getRecommendations()">Get Recommendations</button>
         <button onclick="getRandomTracks()">Get Random Tracks</button>
         <button onclick="getPersonalRecommendations()">Get Personal Recommendations</button>
-        <button onclick="healthCheck()">Health Check</button>
+        <button onclick="ShealthCheck()">Health Check</button>
+        <button onclick="RShealthCheck()">Recsys health check</button>
         <ul id="recommendation-list"></ul>
     </div>
 
     <script>
-    async function _healthCheck() {
-        const response = await fetch('/v1/api/recommendations/health', {
+    async function _ShealthCheck() {
+        const response = await fetch('/v1/api/songs/health', {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the token in localStorage
             }
         });
@@ -71,18 +71,38 @@
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        return await response.json();
+        return await response.text();
     }
+    async function _RShealthCheck() {
+        const response = await fetch('/v1/api/recommendations/health', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the token in localStorage
+            }
+        });
 
-    async function healthCheck() {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.text();
+    }
+    async function ShealthCheck() {
         try {
-            const healthStatus = await _healthCheck();
+            const healthStatus = await _ShealthCheck();
             console.log('Health Check Response:', healthStatus);
         } catch (error) {
             alert('Error during health check: ' + error);
         }
     }
-    
+    async function RShealthCheck() {
+        try {
+            const healthStatus = await _RShealthCheck();
+            console.log('Health Check Response:', healthStatus);
+        } catch (error) {
+            alert('Error during health check: ' + error);
+        }
+    }
 async function _registerUser(username, login, password) {
   const response = await fetch('/v1/auth/register', {
     method: 'POST',
