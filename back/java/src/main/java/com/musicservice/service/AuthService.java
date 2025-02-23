@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.musicservice.dto.AuthRequest;
 import com.musicservice.dto.AuthResponse;
 import com.musicservice.dto.LoginRequest;
 import com.musicservice.dto.LoginResponse;
