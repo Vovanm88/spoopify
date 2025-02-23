@@ -52,3 +52,5 @@ coverage/
 
 #secrets 
 */application-secrets.yml
+application-secrets.yml
+back/java/src/main/java/resources/application-secrets.yml
