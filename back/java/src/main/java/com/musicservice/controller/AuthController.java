@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-
 import com.musicservice.dto.AuthResponse;
 import com.musicservice.dto.LoginRequest;
 import com.musicservice.dto.LoginResponse;
-
 import com.musicservice.dto.UserRegistrationDto;
+import com.musicservice.exception.AuthenticationFailedException;
+import com.musicservice.exception.UserAlreadyExistsException;
+import com.musicservice.exception.UserNotFoundException;
 import com.musicservice.model.User;
 import com.musicservice.service.AuthService;
 
@@ -43,6 +44,8 @@ public class AuthController {
         try {
             User registeredUser = authService.register(user);
             return ResponseEntity.ok(registeredUser);
+        }catch(UserAlreadyExistsException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error registering user: " + e.getMessage());
         }
@@ -50,16 +53,30 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        LoginResponse response = authService.login(loginRequest);
-        System.out.println("User login attempt:");
-        System.out.println("Email: " + loginRequest.getEmail());
-        System.out.println("Login successful");
-        return ResponseEntity.ok(response);
+        try{
+            LoginResponse response = authService.login(loginRequest);
+            System.out.println("User login attempt:");
+            System.out.println("Email: " + loginRequest.getEmail());
+            System.out.println("Login successful");
+            return ResponseEntity.ok(response);
+        }catch(UserNotFoundException e){
+            System.out.println("User not found: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@RequestBody String refreshToken) {
-        AuthResponse authResponse = authService.refreshToken(refreshToken);
-        return ResponseEntity.ok(authResponse);
+        try {
+            AuthResponse authResponse = authService.refreshToken(refreshToken);
+            return ResponseEntity.ok(authResponse);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (AuthenticationFailedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }

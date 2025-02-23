@@ -49,7 +49,8 @@ public class RecommendationService {
         private List<Float> scores;
     }
 
-    public List<SongDto> getPersonalRecommendations(String userId) {
+    @SuppressWarnings("UseSpecificCatch")
+    public List<SongDto> getPersonalRecommendations(Long userId) throws ServiceUnavailableException {
         try {
             ResponseEntity<RecommendationResponse> response = restTemplate.getForEntity(
                     recommendationServiceUrl + "/api/recommendations/{userId}?type=personal",
@@ -69,12 +70,20 @@ public class RecommendationService {
                     .map(Optional::get)
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
-        } catch (Exception e) {
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            if (e.getMessage().contains("Read timed out") ||
+                e.getMessage().contains("Connection refused")) {
+                throw new ServiceUnavailableException("Recommendation service not responding (timeout)");
+            }
+        }  catch (Exception e) {
             log.error("Error getting personal recommendations for user {}: {}", userId, e.getMessage());
             return Collections.emptyList();
         }
+        return Collections.emptyList();
     }
-    public List<SongDto> getRecommendations(String userId) {
+
+    @SuppressWarnings("UseSpecificCatch")
+    public List<SongDto> getRecommendations(Long userId) throws ServiceUnavailableException {
         try {
             ResponseEntity<RecommendationResponse> response = restTemplate.getForEntity(
                     recommendationServiceUrl + "/api/recommendations/{userId}",
@@ -88,12 +97,20 @@ public class RecommendationService {
                     .map(Optional::get)
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
-        } catch (Exception e) {
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            if (e.getMessage().contains("Read timed out") ||
+                e.getMessage().contains("Connection refused")) {
+                throw new ServiceUnavailableException("Recommendation service not responding (timeout)");
+            }
+        }  catch (Exception e) {
             log.error("Error getting recommendations for user {}: {}", userId, e.getMessage());
             return Collections.emptyList();
         }
+        return Collections.emptyList();
     }
-    public SongDto getRandomTracks() {
+
+    @SuppressWarnings("UseSpecificCatch")
+    public SongDto getRandomTracks() throws ServiceUnavailableException {
         try {
             ResponseEntity<RandomTrackResponse> response = restTemplate.getForEntity(
                     recommendationServiceUrl + "/api/random",
@@ -103,10 +120,16 @@ public class RecommendationService {
             return songRepository.findById(UUID.fromString(songId))
                     .map(this::convertToDto)
                     .orElseThrow(() -> new RuntimeException("Песня не найдена"));
-        } catch (Exception e) {
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            if (e.getMessage().contains("Read timed out") ||
+                e.getMessage().contains("Connection refused")) {
+                throw new ServiceUnavailableException("Recommendation service not responding (timeout)");
+            }
+        }  catch (Exception e) {
             log.error("Error getting random track: {}", e.getMessage());
             throw new RuntimeException("Failed to get random track");
         }
+        return SongDto.builder().build();
     }
 
     @Data
@@ -125,8 +148,8 @@ public class RecommendationService {
                 .s3FilePath(song.getS3FilePath())
                 .build();
     }
-
-    public void sendFeedback(String userId, String songId, String action) {
+    @SuppressWarnings("UseSpecificCatch")
+    public void sendFeedback(String userId, String songId, String action) throws ServiceUnavailableException {
         try {
             FeedbackRequest feedback = new FeedbackRequest(
                     userId,
@@ -140,7 +163,12 @@ public class RecommendationService {
                     feedback,
                     Void.class
             );
-        } catch (Exception e) {
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            if (e.getMessage().contains("Read timed out") ||
+                e.getMessage().contains("Connection refused")) {
+                throw new ServiceUnavailableException("Recommendation service not responding (timeout)");
+            }
+        }  catch (Exception e) {
             log.error("Error sending feedback: {}", e.getMessage());
         }
     }
@@ -158,7 +186,8 @@ public class RecommendationService {
                 return "Recommendation service returned status: " + response.getStatusCode();
             }
         } catch (org.springframework.web.client.ResourceAccessException e) {
-            if (e.getMessage().contains("Read timed out")) {
+            if (e.getMessage().contains("Read timed out") ||
+                e.getMessage().contains("Connection refused")) {
                 throw new ServiceUnavailableException("Recommendation service not responding (timeout)");
             }
         } catch (HttpClientErrorException e) {

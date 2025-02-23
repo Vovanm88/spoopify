@@ -5,7 +5,7 @@ security:
       expire-length: 3600000
 
 server:
-  port: 8081  # или любой другой порт
+  port: 8080  # или любой другой порт
 
 recommendation-service:
   url: http://localhost:8085
