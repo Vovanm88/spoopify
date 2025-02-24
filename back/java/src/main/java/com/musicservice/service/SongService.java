@@ -2,7 +2,7 @@ package com.musicservice.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class SongService {
     @Autowired
     private DislikedSongRepository dislikedSongRepository;
 
-    public Optional<Song> getSongById(UUID id) {
+    public Optional<Song> getSongById(Long id) {
         return songRepository.findById(id);
     }
 
@@ -38,7 +38,7 @@ public class SongService {
         return songRepository.save(song);
     }
 
-    public Song updateSong(UUID id, Song songDetails) {
+    public Song updateSong(Long id, Song songDetails) {
         return songRepository.findById(id).map(song -> {
             song.setTitle(songDetails.getTitle());
             song.setArtist(songDetails.getArtist());
@@ -50,10 +50,10 @@ public class SongService {
         }).orElseThrow(() -> new RuntimeException("Song not found"));
     }
 
-    public void deleteSong(UUID id) {
+    public void deleteSong(Long id) {
         songRepository.deleteById(id);
     }
-    public void likeSong(User user, UUID songId) {
+    public void likeSong(User user, Long songId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new RuntimeException("Song not found"));
                 
@@ -71,7 +71,7 @@ public class SongService {
         }
     }
     @Transactional
-    public void dislikeSong(User user, UUID songId) {
+    public void dislikeSong(User user, Long songId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new RuntimeException("Song not found"));
                 

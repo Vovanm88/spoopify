@@ -1,6 +1,5 @@
 package com.musicservice.controller;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +40,7 @@ public class RecommendationController {
         //String userId = userDetails.getUsername(); // используем userId вместо username
         Optional<UserDto> userOptional = userService.findUserByUsername(userDetails.getUsername());
         if (!userOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         
         Long userId = userOptional.get().getId(); // используем userId вместо username
@@ -49,9 +48,9 @@ public class RecommendationController {
             List<SongDto> recommendations = recommendationService.getRecommendations(userId);
             return ResponseEntity.ok(recommendations);
         } catch (ServiceUnavailableException e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -62,9 +61,9 @@ public class RecommendationController {
             SongDto recommendations = recommendationService.getRandomTracks();
             return ResponseEntity.ok(recommendations);
         } catch (ServiceUnavailableException e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(SongDto.builder().build());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SongDto.builder().build());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -73,7 +72,7 @@ public class RecommendationController {
     public ResponseEntity<List<SongDto>> getPersonalRecommendations(@AuthenticationPrincipal UserDetails userDetails) {
         Optional<UserDto> userOptional = userService.findUserByUsername(userDetails.getUsername());
         if (!userOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         
         Long userId = userOptional.get().getId(); // используем userId вместо username
@@ -82,9 +81,9 @@ public class RecommendationController {
             List<SongDto> recommendations = recommendationService.getRecommendations(userId);
             return ResponseEntity.ok(recommendations);
         } catch (ServiceUnavailableException e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 

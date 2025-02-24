@@ -136,9 +136,10 @@ async function _loginUser(email, password) {
 }
 
 async function _getAllSongs() {
-  const response = await fetch('/v1/api/songs', {
+  const response = await fetch('/v1/api/songs/all', {
     method: 'GET',
     headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
       'Content-Type': 'application/json'
     }
   });
@@ -154,6 +155,7 @@ async function _getSongById(id) {
   const response = await fetch(`/v1/api/songs/${id}`, {
     method: 'GET',
     headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
       'Content-Type': 'application/json'
     }
   });
@@ -181,7 +183,7 @@ async function _likeSong(id) {
     return response.ok; // Just return true/false based on success
 }
 
-async function _downloadSong(id) {
+async function downloadSong(id) {
   const response = await fetch(`/v1/api/songs/${id}/download`, {
     method: 'GET',
     headers: {
@@ -319,7 +321,7 @@ async function _getPersonalRecommendations() {
 
         async function getRandomTracks() {
             try {
-                const recommendations = await getRandomTracks();
+                const recommendations = await _getRandomTracks();
                 displayRecommendations(recommendations);
             } catch (error) {
                 alert('Error getting random tracks: ' + error);
@@ -347,7 +349,7 @@ async function _getPersonalRecommendations() {
 
         async function displaySongDetails(id) {
             try {
-                const song = await getSongById(id);
+                const song = await _getSongById(id);
                 const detailsDiv = document.getElementById('song-details');
                 detailsDiv.innerHTML = `
                     <h3>${song.title}</h3>

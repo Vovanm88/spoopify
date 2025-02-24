@@ -30,9 +30,26 @@ def create_s3_bucket(config):
         else:
             print(f"Bucket '{bucket_name}' already exists.")
         
+        test_directory = f"{bucket_name}/test"
+        if not fs.exists(test_directory):
+            fs.mkdir(test_directory)
+            print(f"Subdirectory 'test' created successfully inside '{bucket_name}'.")
+        else:
+            print(f"Subdirectory 'test' already exists inside '{bucket_name}'.")
+        
+        # Загрузка файлов из папки D:/Music в подкаталог 'test'
+        import os
+        local_directory = 'D:/Music'
+        for filename in os.listdir(local_directory):
+            local_file_path = os.path.join(local_directory, filename)
+            if os.path.isfile(local_file_path):
+                s3_file_path = f"{test_directory}/{filename}"
+                fs.put(local_file_path, s3_file_path)
+                print(f"Uploaded '{filename}' to '{s3_file_path}'.")
+        
     except Exception as e:
         print(f"An error occurred: {e}")
 
 # Загрузка конфигурации из YAML-файла
-config = load_config('../java/src/main/java/resources/application-secrets.yml')
+config = load_config('../java/src/main/resources/application-secrets.yml')
 create_s3_bucket(config)

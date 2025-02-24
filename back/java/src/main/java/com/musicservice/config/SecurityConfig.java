@@ -46,9 +46,9 @@ public class SecurityConfig{
                 .requestMatchers("/", "/index.html", "music.html").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Разрешаем доступ к статическим ресурсам
 
-                .requestMatchers("/v1/auth/**").permitAll()  // Добавляем префикс /v1
-                .requestMatchers("/v1/admin/**").hasRole("ADMIN")  // Добавляем префикс /v1
-                .requestMatchers("/v1/api/**").authenticated()  // Добавляем префикс /v1
+                .requestMatchers("/v1/auth/**").permitAll()  
+                .requestMatchers("/v1/admin/**").hasRole("ADMIN")  
+                .requestMatchers("/v1/api/**").authenticated()  
                 .requestMatchers("/swagger-ui/**", "/v1/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // Разрешаем OPTIONS запросы
                 .anyRequest().authenticated())

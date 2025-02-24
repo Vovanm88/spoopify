@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -65,7 +65,7 @@ public class RecommendationService {
 
             List<String> songIds = response.getBody().getSongIds();
             return songIds.stream()
-                    .map(id -> songRepository.findById(UUID.fromString(id)))
+                    .map(id -> songRepository.findById(Long.parseLong(id)))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .map(this::convertToDto)
@@ -92,7 +92,7 @@ public class RecommendationService {
             );
             List<String> songIds = response.getBody().getSongIds();
             return songIds.stream()
-                    .<Optional<Song>>map(id -> songRepository.findById(UUID.fromString(id)))
+                    .<Optional<Song>>map(id -> songRepository.findById(Long.parseLong(id)))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .map(this::convertToDto)
@@ -117,7 +117,7 @@ public class RecommendationService {
                     RandomTrackResponse.class
             );
             String songId = response.getBody().getSongId();
-            return songRepository.findById(UUID.fromString(songId))
+            return songRepository.findById(Long.parseLong(songId))
                     .map(this::convertToDto)
                     .orElseThrow(() -> new RuntimeException("Песня не найдена"));
         } catch (org.springframework.web.client.ResourceAccessException e) {

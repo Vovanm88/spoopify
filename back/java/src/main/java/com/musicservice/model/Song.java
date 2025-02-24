@@ -1,26 +1,29 @@
 package com.musicservice.model;
 
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.ManyToMany;
-import java.util.Set;
-import java.util.HashSet;
 
 
 @Entity
 @Data
 @NoArgsConstructor
+@Table(name = "songs")
 public class Song {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, unique = true)
+    private Long id;
+        
     @Column(name = "title", nullable = false)
     private String title;
 

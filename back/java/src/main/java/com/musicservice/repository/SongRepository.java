@@ -2,7 +2,7 @@ package com.musicservice.repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.musicservice.model.Song;
 
 @Repository
-public interface SongRepository extends JpaRepository<Song, UUID> {
+public interface SongRepository extends JpaRepository<Song, Long> {
     
     Optional<Song> findByTitle(String title);
     
@@ -39,10 +39,10 @@ public interface SongRepository extends JpaRepository<Song, UUID> {
 
     @Query("SELECT COUNT(u) > 0 FROM Song s JOIN s.likedByUsers u " + 
        "WHERE s.id = :songId AND u.id = :userId")
-    boolean isLikedByUser(@Param("songId") UUID songId, @Param("userId") Long userId);
+    boolean isLikedByUser(@Param("songId") Long songId, @Param("userId") Long userId);
 
     @Query("SELECT COUNT(u) > 0 FROM Song s JOIN s.dislikedByUsers u " +
        "WHERE s.id = :songId AND u.id = :userId")
-    boolean isDislikedByUser(@Param("songId") UUID songId, @Param("userId") Long userId);
+    boolean isDislikedByUser(@Param("songId") Long songId, @Param("userId") Long userId);
 
 }

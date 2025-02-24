@@ -2,7 +2,7 @@ package com.musicservice.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +56,6 @@ public class S3Service {
     }
 
     private String generateFileName(MultipartFile file) {
-        return UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        return System.currentTimeMillis() + "_" + file.getOriginalFilename();
     }
 }

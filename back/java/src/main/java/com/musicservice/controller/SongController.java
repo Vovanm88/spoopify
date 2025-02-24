@@ -3,7 +3,6 @@ package com.musicservice.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,8 @@ public class SongController {
     @Autowired
     private UserRepository userRepository;
     
-    @GetMapping
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/all")
     public ResponseEntity<List<SongDto>> getAllSongs() {
         List<Song> songs = songService.getAllSongs();
         List<SongDto> songDtos = songs.stream()
@@ -52,8 +52,9 @@ public class SongController {
         return ResponseEntity.ok(songDtos);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<SongDto> getSongById(@PathVariable UUID id) {
+    public ResponseEntity<SongDto> getSongById(@PathVariable Long id) {
         return songService.getSongById(id)
                 .map(song -> new SongDto(
                         song.getId().toString(),
@@ -67,11 +68,13 @@ public class SongController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}/download")
-    public ResponseEntity<?> downloadSong(@PathVariable UUID id) {
+    public ResponseEntity<?> downloadSong(@PathVariable Long id) {
+        System.out.println("Download request received for song ID: " + id);
         return songService.getSongById(id)
                 .map(song -> {
-                    try (InputStream inputStream = s3Service.getFileStream(song.getS3FilePath())) {
+                    try (InputStream inputStream = s3Service.getFileStream(song.getS3Bucket()+"/"+song.getS3FilePath())) {
                         byte[] content = inputStream.readAllBytes();
                         return ResponseEntity.ok()
                                 .header("Content-Disposition", "attachment; filename=\"" + song.getTitle() + ".mp3\"")
@@ -85,7 +88,7 @@ public class SongController {
     
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/like")
-    public ResponseEntity<?> likeSong(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id) {
+    public ResponseEntity<?> likeSong(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
         String username = userDetails.getUsername();
         return userRepository.findByUsername(username)
             .map(user -> {
@@ -97,7 +100,7 @@ public class SongController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/dislike")
-    public ResponseEntity<?> dislikeSong(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID id) {
+    public ResponseEntity<?> dislikeSong(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
         String username = userDetails.getUsername();
         return userRepository.findByUsername(username)
                 .map(user -> {
