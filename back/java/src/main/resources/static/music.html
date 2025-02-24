@@ -304,7 +304,15 @@ async function _getPersonalRecommendations() {
                     <p>Artist: ${song.artist}</p>
                     <p>Album: ${song.album}</p>
                     <button onclick="downloadSong('${song.id}')">Download</button>
+                    <button onclick="likeSong('${song.id}')">Like</button>
+                    <div id="audio-player">
+                        <audio controls></audio>
+                    </div>
                 `;
+
+                const audio = detailsDiv.querySelector('audio');
+                audio.src = `/v1/api/songs/${id}/stream`; // Устанавливаем ссылку на стриминг песни
+                audio.load(); // Загружаем аудиофайл
             } catch (error) {
                 alert('Error getting song details: ' + error);
             }
@@ -347,8 +355,52 @@ async function _getPersonalRecommendations() {
             });
         }
 
+class AudioPlayer {
+    constructor() {
+        this.audioContext = null;
+        this.source = null;
+    }
+
+    async loadAndPlay(songId, token) {
+        try {
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const response = await fetch(`/v1/api/songs/${songId}/stream`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+            
+            if (this.source) {
+                this.source.stop();
+            }
+            
+            this.source = this.audioContext.createBufferSource();
+            this.source.buffer = audioBuffer;
+            this.source.connect(this.audioContext.destination);
+            this.source.start();
+        } catch (error) {
+            console.error('Error playing audio:', error);
+        }
+    }
+
+    stop() {
+        if (this.source) {
+            this.source.stop();
+        }
+    }
+}
+const player = new AudioPlayer();
+
+
+
         async function displaySongDetails(id) {
             try {
+                const token = localStorage.getItem('token');
                 const song = await _getSongById(id);
                 const detailsDiv = document.getElementById('song-details');
                 detailsDiv.innerHTML = `
@@ -356,13 +408,13 @@ async function _getPersonalRecommendations() {
                     <p>Artist: ${song.artist}</p>
                     <p>Album: ${song.album}</p>
                     <button onclick="downloadSong('${song.id}')">Download</button>
-                    <div id="audio-player">
-                        <audio controls></audio>
-                    </div>
+                    <button onclick="player.loadAndPlay('${song.id}', '${token}')">Play</button>
+                    <button onclick="player.stop()">Stop</button>
                 `;
 
                 const audio = detailsDiv.querySelector('audio');
-                audio.src = `/v1/api/songs/${id}/download`; // Устанавливаем ссылку на загрузку песни
+                
+                audio.src = `/v1/api/songs/${id}/stream?Bearer=${token}`; // Добавляем токен в URL для аутентификации
                 audio.load(); // Загружаем аудиофайл
             } catch (error) {
                 alert('Error getting song details: ' + error);

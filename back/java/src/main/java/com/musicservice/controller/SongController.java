@@ -21,6 +21,7 @@ import com.musicservice.model.Song;
 import com.musicservice.repository.UserRepository;
 import com.musicservice.service.S3Service;
 import com.musicservice.service.SongService;
+import com.musicservice.service.StreamingTokenService;
 
 @RestController
 @RequestMapping("/api/songs")
@@ -74,7 +75,8 @@ public class SongController {
         System.out.println("Download request received for song ID: " + id);
         return songService.getSongById(id)
                 .map(song -> {
-                    try (InputStream inputStream = s3Service.getFileStream(song.getS3Bucket()+"/"+song.getS3FilePath())) {
+                    //song.getS3Bucket()+"/"
+                    try (InputStream inputStream = s3Service.getFileStream(song.getS3FilePath())) {
                         byte[] content = inputStream.readAllBytes();
                         return ResponseEntity.ok()
                                 .header("Content-Disposition", "attachment; filename=\"" + song.getTitle() + ".mp3\"")
@@ -84,6 +86,28 @@ public class SongController {
                     }
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+
+        @Autowired
+    private StreamingTokenService streamingTokenService;
+
+    @SuppressWarnings("unused")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{id}/stream")
+    public ResponseEntity<String> getStreamToken(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long id) {
+        return songService.getSongById(id)
+            .map(song -> {
+                String username = userDetails.getUsername();
+                Long userId = userRepository.findByUsername(username)
+                    .map(user -> user.getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+                String rayId = streamingTokenService.generateToken(userId, id);
+                return ResponseEntity.ok(rayId);
+            })
+            .orElse(ResponseEntity.notFound().build());
     }
     
     @PreAuthorize("isAuthenticated()")

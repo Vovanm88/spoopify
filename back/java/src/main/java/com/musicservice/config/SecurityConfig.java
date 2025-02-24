@@ -45,7 +45,7 @@ public class SecurityConfig{
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/index.html", "music.html").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Разрешаем доступ к статическим ресурсам
-
+                .requestMatchers("/v1/stream/**").permitAll()  
                 .requestMatchers("/v1/auth/**").permitAll()  
                 .requestMatchers("/v1/admin/**").hasRole("ADMIN")  
                 .requestMatchers("/v1/api/**").authenticated()  
