@@ -6,7 +6,6 @@ import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +29,6 @@ public class StreamingController {
     @Autowired
     private StreamingTokenService streamingTokenService;
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/{rayId}", produces = "audio/mpeg")
     public ResponseEntity<StreamingResponseBody> streamSong(@PathVariable String rayId) {
         Long songId = streamingTokenService.getSongIdByToken(rayId);
@@ -40,18 +38,18 @@ public class StreamingController {
 
         return songService.getSongById(songId)
             .<ResponseEntity<StreamingResponseBody>>map(song -> {
-                try {
-                    InputStream inputStream = s3Service.getFileStream(song.getS3FilePath());
-                    long contentLength = inputStream.available();
+                try (InputStream inputStream = s3Service.getFileStream(song.getS3FilePath())) {
+                    // Считываем весь файл в массив байтов, чтобы получить его полный размер
+                    byte[] songData = inputStream.readAllBytes();
+                    long contentLength = songData.length;
+                    System.out.println("Requested file from S3: " + song.getS3FilePath());
+                    System.out.println("Content length: " + contentLength + " bytes");
                     
                     StreamingResponseBody responseBody = outputStream -> {
-                        try (InputStream is = inputStream) {
-                            byte[] buffer = new byte[4096];
-                            int bytesRead;
-                            while ((bytesRead = is.read(buffer)) != -1) {
-                                outputStream.write(buffer, 0, bytesRead);
-                                outputStream.flush();
-                            }
+                        try {
+                            outputStream.write(songData);
+                            outputStream.flush();
+                            //System.out.println("Transferred full song of size: " + contentLength + " bytes");
                         } catch (IOException e) {
                             throw new RuntimeException("Error streaming song: " + e.getMessage());
                         }
