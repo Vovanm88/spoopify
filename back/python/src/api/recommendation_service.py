@@ -5,7 +5,7 @@ from api.models import FeedbackModel, RecommendationResponse
 class RecommendationService:
     def __init__(self):
         # Моковые данные для демонстрации
-        self.mock_songs = [f"song_{i}" for i in range(1, 101)]
+        self.mock_songs = [f"{i}" for i in range(1, 16)]  # Убираем префикс "song_", чтобы ID были числовыми
     
     def get_recommendations(self, user_id: str) -> RecommendationResponse:
         # Возвращаем 5 случайных песен с случайными скорами
@@ -13,7 +13,7 @@ class RecommendationService:
         scores = [round(random.uniform(0.1, 1.0), 2) for _ in range(5)]
         
         return RecommendationResponse(
-            song_ids=selected_songs,
+            songIds=selected_songs,
             scores=scores
         )
     
@@ -26,4 +26,5 @@ class RecommendationService:
         return random.choice(self.mock_songs)
 
     def health_check(self) -> int:
-        return 200;
+        return 200
+        # Убираем лишнюю точку с запятой

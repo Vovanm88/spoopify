@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import java.util.stream.Collectors;
 
+import com.musicservice.dto.RecSysResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -42,19 +43,13 @@ public class RecommendationService {
         this.recommendationServiceUrl = recommendationServiceUrl;
         this.songRepository = songRepository;
     }
-    @Data
-    @AllArgsConstructor
-    private class RecommendationResponse {
-        private List<String> songIds;
-        private List<Float> scores;
-    }
 
     @SuppressWarnings("UseSpecificCatch")
     public List<SongDto> getPersonalRecommendations(Long userId) throws ServiceUnavailableException {
         try {
-            ResponseEntity<RecommendationResponse> response = restTemplate.getForEntity(
+            ResponseEntity<RecSysResponse> response = restTemplate.getForEntity(
                     recommendationServiceUrl + "/api/recommendations/{userId}?type=personal",
-                    RecommendationResponse.class,
+                    RecSysResponse.class,
                     userId
             );
             
@@ -85,11 +80,12 @@ public class RecommendationService {
     @SuppressWarnings("UseSpecificCatch")
     public List<SongDto> getRecommendations(Long userId) throws ServiceUnavailableException {
         try {
-            ResponseEntity<RecommendationResponse> response = restTemplate.getForEntity(
+            ResponseEntity<RecSysResponse> response = restTemplate.getForEntity(
                     recommendationServiceUrl + "/api/recommendations/{userId}",
-                    RecommendationResponse.class,
+                    RecSysResponse.class,
                     userId
             );
+            System.out.println("Response: " + response);
             List<String> songIds = response.getBody().getSongIds();
             return songIds.stream()
                     .<Optional<Song>>map(id -> songRepository.findById(Long.parseLong(id)))
@@ -109,6 +105,23 @@ public class RecommendationService {
         return Collections.emptyList();
     }
 
+    @Data
+    private static class RandomTrackResponse {
+        private String songId;
+    
+    // Добавляем конструктор по умолчанию для корректной десериализации
+        public RandomTrackResponse() {}
+    
+    // Добавляем геттер и сеттер для совместимости с разными форматами JSON
+        public String getSongId() {
+            return songId;
+        }
+        
+        public void setSongId(String songId) {
+            this.songId = songId;
+        }
+    }
+
     @SuppressWarnings("UseSpecificCatch")
     public SongDto getRandomTracks() throws ServiceUnavailableException {
         try {
@@ -116,25 +129,34 @@ public class RecommendationService {
                     recommendationServiceUrl + "/api/random",
                     RandomTrackResponse.class
             );
+            
+            if (response == null || response.getBody() == null) {
+                log.warn("Received empty response from recommendation service when requesting random track");
+                throw new RuntimeException("Received empty response from recommendation service");
+            }
+            
+            log.debug("Response: {}", response);
+            log.debug("Response body: {}", response.getBody());
+            
             String songId = response.getBody().getSongId();
+            if (songId == null || songId.isEmpty()) {
+                throw new RuntimeException("Received empty song identifier from recommendation service");
+            }
+            
             return songRepository.findById(Long.parseLong(songId))
                     .map(this::convertToDto)
-                    .orElseThrow(() -> new RuntimeException("Песня не найдена"));
+                    .orElseThrow(() -> new RuntimeException("Song not found"));
         } catch (org.springframework.web.client.ResourceAccessException e) {
             if (e.getMessage().contains("Read timed out") ||
                 e.getMessage().contains("Connection refused")) {
                 throw new ServiceUnavailableException("Recommendation service not responding (timeout)");
             }
-        }  catch (Exception e) {
-            log.error("Error getting random track: {}", e.getMessage());
+            log.error("Error accessing recommendation service: {}", e.getMessage());
+            throw new ServiceUnavailableException("Error accessing recommendation service");
+        } catch (Exception e) {
+            log.error("Error getting random track: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get random track");
         }
-        return SongDto.builder().build();
-    }
-
-    @Data
-    private static class RandomTrackResponse {
-        private String songId;
     }
 
     private SongDto convertToDto(Song song) {

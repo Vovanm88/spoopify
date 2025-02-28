@@ -18,7 +18,7 @@ async function _registerUser(username, login, password) {
         body: JSON.stringify({ 
             username, 
             login, 
-            password: await hashPassword(password) // Хеширование пароля перед отправкой
+            password // Хеширование пароля перед отправкой
         })
     });
 

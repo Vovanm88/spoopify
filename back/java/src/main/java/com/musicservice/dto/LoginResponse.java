@@ -1,6 +1,6 @@
 package com.musicservice.dto;
 
-import com.musicservice.model.User;
+//import com.musicservice.model.User;
 
 import lombok.Data;
 import lombok.Builder;
@@ -13,5 +13,5 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class LoginResponse {
     private String token;
-    private User user;
+    //private User user;
 }

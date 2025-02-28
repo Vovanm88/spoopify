@@ -9,5 +9,5 @@ class FeedbackModel(BaseModel):
     timestamp: datetime
 
 class RecommendationResponse(BaseModel):
-    song_ids: List[str]
+    songIds: List[str]
     scores: List[float]

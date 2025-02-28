@@ -66,7 +66,7 @@ public class AuthService {
             
             return LoginResponse.builder()
                     .token(accessToken)
-                    .user(user)
+                    //.user(user)
                     .build();
         } catch (AuthenticationException e) {
             throw new AuthenticationFailedException("Invalid credentials");

@@ -50,7 +50,15 @@ async function displaySongDetails(id) {
     }
 }
 */
-
+function displayRecommendations(recommendations) {
+    const recommendationList = document.getElementById('recommendation-list');
+    recommendationList.innerHTML = '';
+    recommendations.forEach(rec => {
+        const li = document.createElement('li');
+        li.textContent = rec.title;
+        recommendationList.appendChild(li);
+    });
+}
 
 
 async function getRecommendations() {
@@ -58,16 +66,16 @@ async function getRecommendations() {
         const recommendations = await _getRecommendations();
         displayRecommendations(recommendations);
     } catch (error) {
-        alert('Error getting recommendations: ' + error);
+        displayMessage('Error getting recommendations: ' + error, 'error');
     }
 }
 
 async function getRandomTracks() {
     try {
         const recommendations = await _getRandomTracks();
-        displayRecommendations(recommendations);
+        displayRecommendations([recommendations]);
     } catch (error) {
-        alert('Error getting random tracks: ' + error);
+        displayMessage('Error getting random tracks: ' + error, 'error');
     }
 }
 
@@ -76,7 +84,7 @@ async function getPersonalRecommendations() {
         const recommendations = await _getPersonalRecommendations();
         displayRecommendations(recommendations);
     } catch (error) {
-        alert('Error getting personal recommendations: ' + error);
+        displayMessage('Error getting personal recommendations: ' + error, 'error');
     }
 }
 
@@ -89,7 +97,6 @@ function displayRecommendations(recommendations) {
         recommendationList.appendChild(li);
     });
 }
-
 class AudioPlayer {
     constructor() {
         this.audioContext = null;
