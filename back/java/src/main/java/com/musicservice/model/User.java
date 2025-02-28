@@ -8,6 +8,7 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -51,8 +52,8 @@ public class User {
     @ManyToMany
     @JoinTable(
         name = "user_liked_songs",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "song_id")
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "song_id", referencedColumnName = "id")
     )
     @Builder.Default
     private Set<Song> likedSongs = new HashSet<>();
@@ -60,8 +61,8 @@ public class User {
     @ManyToMany
     @JoinTable(
         name = "user_disliked_songs",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "song_id")
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "song_id", referencedColumnName = "id")
     )
     @Builder.Default
     private Set<Song> dislikedSongs = new HashSet<>();
@@ -69,5 +70,9 @@ public class User {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, login, passwordHash, sessionToken, role, createdAt, lastLoginAt);
     }
 }

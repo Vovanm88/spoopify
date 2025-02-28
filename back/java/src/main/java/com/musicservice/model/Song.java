@@ -1,6 +1,7 @@
 package com.musicservice.model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import jakarta.persistence.Column;
@@ -47,4 +48,9 @@ public class Song {
 
     @ManyToMany(mappedBy = "dislikedSongs")
     private Set<User> dislikedByUsers = new HashSet<>();
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, artist, album, description, s3Bucket, s3FilePath);
+    }
 }

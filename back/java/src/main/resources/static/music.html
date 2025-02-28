@@ -23,7 +23,7 @@
 </head>
 <body>
 
-    <h1>Music Service Client</h1>
+    <div class="header"><h1>Spoopify</h1><img src="/images/spoopy_logo_100px.png" class="logo"></div>
 
     <div id="auth-section">
         <h2>Authentication</h2>
@@ -167,8 +167,24 @@ async function _getSongById(id) {
   return await response.json();
 }
 
-async function _likeSong(id) {
+async function likeSong(id) {
     const response = await fetch(`/v1/api/songs/${id}/like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the token in localStorage
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.ok; // Just return true/false based on success
+}
+
+async function dislikeSong(id) {
+    const response = await fetch(`/v1/api/songs/${id}/dislike`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -322,6 +338,8 @@ async function displaySongDetails(id) {
                 <source src="/v1/stream/${rayId}" type="audio/mpeg">
                 Your browser does not support the audio element.
             </audio>
+            <button onclick="likeSong(${id})">Like</button>
+            <button onclick="dislikeSong(${id})">Dislike</button>
         `;
     } catch (error) {
         alert('Error getting song details: ' + error);
