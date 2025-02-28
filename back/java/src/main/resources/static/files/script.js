@@ -28,6 +28,7 @@ async function getStreamToken(songId) {
 
     return await response.text();
 }
+/*
 async function displaySongDetails(id) {
     try {
         const song = await _getSongById(id);
@@ -48,6 +49,9 @@ async function displaySongDetails(id) {
         alert('Error getting song details: ' + error);
     }
 }
+*/
+
+
 
 async function getRecommendations() {
     try {
@@ -126,3 +130,122 @@ class AudioPlayer {
     }
 }
 const player = new AudioPlayer();
+
+async function displaySongDetails(id) {
+    try {
+        const song = await _getSongById(id);
+        const rayId = await getStreamToken(id);
+        
+        // Обновляем информацию в кастомном плеере
+        const playerElement = document.getElementById('custom-player');
+        playerElement.style.display = 'block';
+        
+        // Обновляем информацию о песне
+        playerElement.querySelector('.song-title').textContent = song.title;
+        playerElement.querySelector('.song-artist').textContent = song.artist || 'Неизвестный исполнитель';
+        
+        // Сохраняем ID песни в плеере для использования в кнопках лайка/дизлайка
+        playerElement.dataset.songId = id;
+        playerElement.dataset.rayId = rayId;
+        
+        // Сбрасываем прогресс
+        const progressBar = playerElement.querySelector('.progress-bar');
+        progressBar.style.width = '0%';
+        
+        // Обновляем время
+        playerElement.querySelector('.current-time').textContent = '0:00';
+        playerElement.querySelector('.duration').textContent = '0:00';
+        
+        // Сбрасываем состояние кнопок лайка/дизлайка
+        playerElement.querySelector('.like-btn').classList.remove('active');
+        playerElement.querySelector('.dislike-btn').classList.remove('active');
+        
+        // Инициализируем аудио
+        initializeAudio(rayId);
+    } catch (error) {
+        alert('Error getting song details: ' + error);
+    }
+}
+
+// Инициализация аудио
+function initializeAudio(rayId) {
+    const audio = new Audio(`/v1/stream/${rayId}`);
+    const playerElement = document.getElementById('custom-player');
+    const progressBar = playerElement.querySelector('.progress-bar');
+    const currentTimeElement = playerElement.querySelector('.current-time');
+    const durationElement = playerElement.querySelector('.duration');
+    const playButton = playerElement.querySelector('.play-btn');
+    const likeButton = playerElement.querySelector('.like-btn');
+    const dislikeButton = playerElement.querySelector('.dislike-btn');
+    
+    // Сохраняем аудио элемент в плеере
+    playerElement.audio = audio;
+    
+    // Обработчик загрузки метаданных
+    audio.addEventListener('loadedmetadata', () => {
+        durationElement.textContent = formatTime(audio.duration);
+    });
+    
+    // Обработчик обновления времени
+    audio.addEventListener('timeupdate', () => {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = `${progress}%`;
+        currentTimeElement.textContent = formatTime(audio.currentTime);
+    });
+    
+    // Обработчик окончания воспроизведения
+    audio.addEventListener('ended', () => {
+        playButton.textContent = '▶️';
+        playButton.title = 'Воспроизвести';
+    });
+    
+    // Обработчик клика на кнопку воспроизведения
+    playButton.onclick = () => {
+        if (audio.paused) {
+            audio.play();
+            playButton.textContent = '⏸️';
+            playButton.title = 'Пауза';
+        } else {
+            audio.pause();
+            playButton.textContent = '▶️';
+            playButton.title = 'Воспроизвести';
+        }
+    };
+    
+    // Обработчик клика на прогресс-бар
+    playerElement.querySelector('.progress-container').onclick = (e) => {
+        const rect = e.target.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = pos * audio.duration;
+    };
+    
+    // Обработчики для кнопок лайка/дизлайка
+    likeButton.onclick = async () => {
+        const songId = playerElement.dataset.songId;
+        try {
+            await likeSong(songId);
+            likeButton.classList.add('active');
+            dislikeButton.classList.remove('active');
+        } catch (error) {
+            console.error('Error liking song:', error);
+        }
+    };
+    
+    dislikeButton.onclick = async () => {
+        const songId = playerElement.dataset.songId;
+        try {
+            await dislikeSong(songId);
+            dislikeButton.classList.add('active');
+            likeButton.classList.remove('active');
+        } catch (error) {
+            console.error('Error disliking song:', error);
+        }
+    };
+}
+
+// Функция форматирования времени из секунд в формат MM:SS
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
