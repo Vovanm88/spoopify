@@ -13,17 +13,23 @@ body {
     padding: 1rem 0;
     text-align: center;
     border-bottom: 3px solid #00bcd4;
+    display: flex; /* Используем flexbox для выравнивания по горизонтали */
+    align-items: center; /* Выравниваем элементы по вертикали по центру */
+    justify-content: center; 
 }
 
 .header h1 {
     margin: 0;
     font-size: 2rem;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+
 }
 
 .logo {
     width: 100px;
     vertical-align: middle;
     margin-left: 10px;
+    margin-right: 10px; 
 }
 
 #auth-section,

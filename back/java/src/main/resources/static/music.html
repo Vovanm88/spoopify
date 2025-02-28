@@ -9,20 +9,26 @@
 <body>
 
     <div class="header">
-        <h1>Spoopify</h1>
         <img src="/images/spoopy_logo_100px.png" class="logo" alt="Spoopify Logo">
+        <h1 class="title">Spoopify</h1>
     </div>
 
     <div id="auth-section">
         <h2>Authentication</h2>
-        <input type="text" id="register-username" placeholder="Username"><br>
-        <input type="text" id="register-login" placeholder="Login"><br>
-        <input type="password" id="register-password" placeholder="Password"><br>
-        <button onclick="register()">Register</button><br><br>
+        <div id="register-form">
+            <input type="text" id="register-username" placeholder="Username"><br>
+            <input type="text" id="register-login" placeholder="Login"><br>
+            <input type="password" id="register-password" placeholder="Password"><br>
+            <button onclick="register()">Register</button><br><br>
+        </div>
 
-        <input type="text" id="login-email" placeholder="Email"><br>
-        <input type="password" id="login-password" placeholder="Password"><br>
-        <button onclick="login()">Login</button>
+        <div id="login-form">
+            <input type="text" id="login-email" placeholder="Email"><br>
+            <input type="password" id="login-password" placeholder="Password"><br>
+            <button onclick="login()">Login</button>
+        </div>
+
+        <button id="logout-button" onclick="logout()" style="display:none;">Logout</button>
     </div>
 
     <div id="song-section">

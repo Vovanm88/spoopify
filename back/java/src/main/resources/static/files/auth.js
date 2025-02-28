@@ -1,4 +1,6 @@
+
 async function hashPassword(password) {
+    return ''+password;
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -27,15 +29,15 @@ async function _registerUser(username, login, password) {
     return await response.json();
 }
 
-async function _loginUser(email, _password) {
-    const password = await hashPassword(_password);
+async function _loginUser(email, password) {
+    //const password = await hashPassword(_password);
     const loginData = JSON.stringify({ email, password });
 
     const response = await fetch('/v1/auth/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Content-Length': loginData.length.toString() // Установка длины контента
+            //'Content-Length': loginData.length.toString() // Установка длины контента
         },
         body: loginData
     });
@@ -70,6 +72,7 @@ async function login() {
         // alert('Login successful: ' + JSON.stringify(result));
         displayMessage('Login successful!'); // Отображаем сообщение об успехе
         updateAuthSection(); // Обновляем секцию аутентификации после входа
+        updateSongSectionVisibility();
 
     } catch (error) {
         // alert('Login failed: ' + error);
@@ -115,3 +118,11 @@ function updateAuthSection() {
         logoutButton.style.display = 'none'; // Скрываем кнопку выхода
     }
 }
+function updateSongSectionVisibility() {
+    const songSection = document.getElementById('song-section');
+    songSection.style.display = localStorage.getItem('token') ? 'block' : 'none';
+}
+window.onload = () => {
+    updateAuthSection();
+    updateSongSectionVisibility();
+};

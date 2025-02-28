@@ -10,7 +10,7 @@ async function getAllSongs() {
             songList.appendChild(li);
         });
     } catch (error) {
-        alert('Error getting songs: ' + error);
+        displayMessage('Error getting songs: ' + error, 'error');
     }
 }
 
